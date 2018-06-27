@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import TodoListContract from '../build/contracts/TodoList.json';
 import getWeb3 from './utils/getWeb3';
 
+import CreateTodo from './createTodo';
+
 import './css/oswald.css';
 import './css/open-sans.css';
 import './css/pure-min.css';
@@ -15,6 +17,9 @@ class App extends Component {
 			storageValue: 0,
 			web3: null,
 		};
+
+		// seriously need to bind every method consumed in template ???
+		this.createTodo = this.createTodo.bind(this);
 	}
 
 	componentWillMount() {
@@ -46,53 +51,26 @@ class App extends Component {
 		const todoList = contract(TodoListContract);
 		todoList.setProvider(this.state.web3.currentProvider);
 
-		// Declaring this for later so we can chain functions on TodoListInstance.
-		let todoListInstance;
-
 		// Get accounts.
 		this.state.web3.eth.getAccounts((error, accounts) => {
+			this.accounts = accounts;
 			todoList
 				.deployed()
 				.then((instance) => {
-					console.log(instance)
-					todoListInstance = instance;
-
-					return todoListInstance.set(5, { from: accounts[0] });
+					this.todoListInstance = instance;
 				})
-				.then((result) => {
-					// Get the value from the contract to prove it worked.
-					return todoListInstance.get.call(accounts[0]);
-				})
-				.then((result) => {
-					// Update state with the result.
-					return this.setState({ storageValue: result.c[0] });
-				});
 		});
 	}
-
+	createTodo(content) {
+		this.todoListInstance.createTodo(content, { from: this.accounts[0]})
+	}
 	render() {
 		return (
 			<div className="App">
-				<nav className="navbar pure-menu pure-menu-horizontal">
-					<a href="#" className="pure-menu-heading pure-menu-link">
-						Truffle Box
-					</a>
-				</nav>
-
-				<main className="container">
-					<div className="pure-g">
-						<div className="pure-u-1-1">
-							<h1>Good to Go!</h1>
-							<p>Your Truffle Box is installed and ready.</p>
-							<h2>Smart Contract Example</h2>
-							<p>If your contracts compiled and migrated successfully, below will show a stored value of 5 (by default).</p>
-							<p>
-								Try changing the value stored on <strong>line 59</strong> of App.js.
-							</p>
-							<p>The stored value is: {this.state.storageValue}</p>
-						</div>
-					</div>
-				</main>
+				<div className="pure-menu pure-menu-horizontal">
+					<a href="#" className="pure-menu-heading pure-menu-link">ETH TODO</a>
+				</div>
+					<CreateTodo create={this.createTodo}></CreateTodo>
 			</div>
 		);
 	}
