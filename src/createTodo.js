@@ -23,7 +23,7 @@ class CreateTodo extends Component {
 	}
 	render() {
 		return (
-			<form className="pure-form">
+			<div className="pure-form">
 				<fieldset style={fieldsetStyle}>
 					<legend>New Todo</legend>
 						<input type="text" value={this.state.content} onChange={this.updateContent} />
@@ -31,7 +31,7 @@ class CreateTodo extends Component {
 							Create
 						</div>
 				</fieldset>
-			</form>
+			</div>
 		);
 	}
 }
